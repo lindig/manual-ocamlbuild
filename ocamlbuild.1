@@ -1,0 +1,131 @@
+.\" 
+.\" Alternative Unix manual page for ocamlbuild(1)
+.\" written by Christian Lindig <lindig@gmail.com>
+.\" This file is in the Public Domain 02. October 2015 
+.\"
+.\" nroff -man ocamlbuild.1
+.\" groff -man -Tps ocamlbuild.1 > ocamlbuild.ps
+.\"
+
+.TH OCAMLBUILD 1
+.SH "NAME"
+ocamlbuild \- compilation manager for OCaml projects
+
+.SH "SYNOPSIS"
+\fBocamlbuild\fR \fI[options]\fR \fItarget\fR
+
+.SH "DESCRIPTION"
+\fBocamlbuild\fR manages the efficient compilation of source code towards
+a \fItarget\fR provided as argument. \fBocamlbuild\fR controls the
+invocation of compilers, linkers, document generators and the like, similar
+to \fImake\fR\|(1).  Construction of the \fItarget\fR is guided by
+\fIoptions\fR, built-in rules, user-provided tags, and user-provided
+extensions.  \fBocamlbuild\fR is language-independent by design but
+includes pre-defined rules for OCaml projects.
+
+.PP
+This manual page does not comprehensively document \fBocamlbuild's\fR
+capabilities, operations and options. See section \s-1SEE ALSO\s0 for where
+to find complete documentation.
+
+.SH "OPTIONS"
+Below are some important options documented, however this list is not
+complete.
+
+.IP "\fB\-help\fR" 6
+List all \fIoptions\fR available.
+
+.IP "\fB\-clean\fR" 6
+Remove build files.
+
+.IP "\fB\-documentation\fR" 6
+List all built-in rules to stdout.
+
+.IP "\fB\-use\-ocamlfind\fR" 6
+Use \fIocamlfind\fR\|(1) for locating packages and libraries during
+compilation.  Use this option when building OCaml projects in an
+environment that uses the \fIopam\fR\|(1) package manager for installing
+libraries and tools.
+
+.IP "\fB\-version\fR" 6
+Emit version of \fBocamlbuild\fR to stdout.
+
+.SH "INVOCATION"
+
+\fBocamlbuild\fR should be invoked at the root of a project tree that
+should not contain files derived by compilation from source files. Upon
+invocation, \fBocamlbuild\fR will look for optional configuration files
+\fI_tags\fR and \fIocamlbuild.ml\fR. \fBocamlbuild\fR will create a
+directory \fI_build\fR for target files, intermediate, and log files. It
+can be removed by invoking \fBocamlbuild \-clean\fR.
+
+.PP
+\fBocamlbuild\fR will exit with a message and code 1 if it finds derived
+files in the project tree.
+
+.SH "FILE EXTENSIONS"
+File extensions are important to signal \fBocamlbuild\fR the kind of
+\fItarget\fR to build. Here are some important file extensions:
+
+.IP "\fIfile\fR.\fBnative\fR: native code executable file" 4
+.IP "\fIfile\fR.\fBbyte\fR: byte code executable file" 4
+.IP "\fIfile\fR.\fBd.byte\fR: byte code executable with debug information" 4
+
+.PP
+For example, if the main code of a project is in file \fImain.ml\fR,
+invoking \fBocamlbuild\fR as
+
+    ocamlbuild main.native
+
+will build \fImain.native\fR as native binary. \fBocamlbuild\fR infers
+automatically that it needs to compile all modules that belong to the
+project into object files and to link them together into the
+\fImain.native\fR binary.
+
+.SH "FILES"
+.IP "\fI_tags\fR" 6
+\fBocamlbuild\fR reads an optional file \fI_tags\fR in its current
+directory. A \fI_tags\fR file associates patterns for files with
+\fItags\fR that control the properties of files that match a pattern:
+
+    true:               package(toto), package(tata)
+    <foo.*> or <bar.*>: debug
+    "strange.ml":       rectypes
+
+A pattern is to the left of the colon and tags for the matching files to
+the right. See section \s-1SEE ALSO\s0 for documentation of the concept and
+syntax of the \fI_tags\fR file.
+
+.IP "\fImyocamlbuild.ml\fR" 6
+\fBocamlbuild\fR can be extended by custom rules provided in a source
+code file \fImyocamlbuild.ml\fR containing \fIocaml\fR\|(1) source code. On
+startup, \fBocamlbuild\fR will compile a \fImyocamlbuild.ml\fR found it
+its current directory, create new custom binary of \fBocamlbuild\fR, and
+run it to complete the task it was invoked for.
+
+.SH "EXIT CODE"
+\fBocamlbuild\fR terminates with exit code zero on success, and with a
+positive exit code if it fails to build the target:
+
+.IP "0 ok" 4
+.IP "1 usage" 4
+.IP "2 failure" 4
+.IP "3 invalid argument" 4
+.IP "4 system error" 4
+.IP "1 hygiene" 4
+.IP "5 circularity" 4
+.IP "6 solver failed" 4
+.IP "7 ocamldep error" 4
+.IP "8 lexing error" 4
+.IP "9 build error" 4
+.IP "10 executor subcommand failed" 4
+.IP "11 executor subcommand got signal" 4
+.IP "12 executor io error" 4
+.IP "13 executor exceptional condition" 4
+
+.SH "SEE ALSO"
+\fIocaml\fR\|(1), \fIocamlc\fR\|(1), \fIocamlfind\fR\|(1),
+\fIopam\fR\|(1), \fImake\fR\|(1)
+.PP
+https://github.com/gasche/manual\-ocamlbuild
+http://caml.inria.fr/pub/docs/manual\-ocaml/ocamlbuild.html
