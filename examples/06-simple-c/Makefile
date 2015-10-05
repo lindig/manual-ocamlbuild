@@ -5,7 +5,7 @@
 # libpath.a; to make sure it gets built it is named as an explicit target
 # when invoking ocamlbuild. The linking step is handled by passing 
 # the library using -lflag to the linker. This works around the problem
-# that I don't know how to specify C library as a dependency for a binary.
+# that I don't know how to specify a C library as a dependency for a binary.
 #
 
 OCB_FLAGS = -I src -I lib -lflag lib/libpath.a
