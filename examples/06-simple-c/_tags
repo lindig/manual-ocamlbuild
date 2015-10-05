@@ -1,0 +1,5 @@
+# byte code binaries need the custom linker flag when linked with 
+# C object files.
+
+<**/main.byte>:           custom
+
