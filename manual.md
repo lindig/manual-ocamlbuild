@@ -48,11 +48,11 @@ OCamlbuild's job is to determine the sequence of calls to the
 compiler, with the right set of command-line flags, needed to build
 your OCaml project.
 
-OCamlbuild is extremely convenient to use for simple projects: if you
+OCamlbuild is extremely convenient to use for simple projects. If you
 have a small OCaml project (program or library), chances are you can
-directly invoke ocamlbuild to automatically discover the various
+directly invoke ocamlbuild to automatically discover various
 source files and dependencies, and build executables, library archives
-or documentations with one-line commands -- in simple cases you don't
+or documentation with one-line commands. In simple cases you don't
 need to write a configuration file at all.
 
 A few examples of quick ocamlbuild commands:
@@ -94,7 +94,7 @@ OCamlbuild features in the [examples/](examples/) sub-directory of
 this documentation, which may serve as inspiration.
 
 Note that there are many ways to integrate ocamlbuild in your project;
-the examples provided so far use a Makefile on top of of ocamlbuild to
+the examples provided so far use a Makefile on top of ocamlbuild to
 provide the familiar `make; make install; make clean` interface to
 users, but you should of course feel free to do otherwise.
 
@@ -184,9 +184,9 @@ Some alternatives for building OCaml projects are:
   a really-simple build system with a declarative configuration
   language that has 80% the features, to cover most simple projects.
 
-The "Real World OCaml" book uses a tool named `corebuild`, which is in
+The "Real World OCaml" book uses a tool named `corebuild`---which is in
 fact just a simple wrapper on top of `ocamlbuild` provided by the
-OCaml library named `core` -- with some common options for `core`
+OCaml library named `core`---with some common options for `core`
 projects baked in.
 
 ## Core concepts <a id="intro-core-concepts"></a>
@@ -194,7 +194,7 @@ projects baked in.
 ### Rules and targets <a id="concept-rules-targets"></a>
 
 OCamlbuild knows about a set of *rules* to build programs, that
-provide a piece of OCaml code to build certain kind of files, named
+provide a piece of OCaml code to build certain kinds of files, named
 *targets*, from some dependencies (statically known or
 dynamically discovered). For example, a built-in "%.ml -> %.cmo" rule
 describes how to build any `.cmo` compilation unit file from the `.ml`
@@ -202,10 +202,10 @@ of the same name; if you call `ocamlbuild foo.cmo`, it will either use
 `foo.ml` in your source directory or, if it doesn't exist, try to
 build it, for example from `foo.mll` or `foo.mly`.
 
-OCamlbuild knows various targets to build all sort of useful things:
+OCamlbuild knows various targets to build all sorts of useful things:
 byte or native programs (`.byte`, `.native`), library archives
 (`.cma`, `.cmxa`, `.cmxs`), documentation (`.docdir/index.html`,
-`.docdir/man`), etc. We will detail those in the [Reference
+`.docdir/man`), etc. We will detail these in the [Reference
 section](#reference-targets).
 
 ### Tags and the `_tags` file <a id="concept-tags"></a>
@@ -220,10 +220,10 @@ process, but not during an initial syntactic preprocessing step
 your program's targets, and it will sort out when to insert the `-g`
 flag or not.
 
-To attach tags to your OCamlbuild targets, you write them in a `_tags`
-file. Each line is of the form `foo: bar`. `bar` is a list of tags,
-and `foo` is a filter that determines to which targets `bar`
-applies. For example the `_tags` file
+To attach tags to your OCamlbuild targets, you write them in an `_tags`
+file. Each line is of the form `foo: bar`, where `bar` is a list of tags,
+and `foo` is a filter that determines which targets `bar`
+applies to. For example the `_tags` file
 
     true: package(toto), package(tata)
     <foo.*> or <bar.*>: debug
@@ -416,7 +416,7 @@ you name it `mydoc.odocl` for example, you can then invoke
 which will produce the documentation in the subdirectory
 `mydoc.docdir`, thanks to a rule `"%.odocl -> %.docdir/index.html"`.
 
-## Source and build directories, module paths, include paths <a href="intro-paths"></a>
+## Source and build directories, module paths, include paths <a id="intro-paths"></a>
 
 The "source directories" that ocamlbuild will traverse to look for
 rule dependencies are a subset of the subdirectory tree rooted at the
@@ -814,6 +814,7 @@ adding this tag, it is really easy.)
     - `profile` (for `-p`)
     - `rectypes`
     - `runtime_variant(_pic)`
+    - `safe_string`
     - `short_paths`
     - `strict_formats`
     - `strict_sequence`
@@ -1338,20 +1339,20 @@ rule. The plugin author defining this rule should define the
       let tags = tags_of_pathname arg ++ "ocaml" ++ "ocamldep" in
       Cmd(S[A "ocamldep"; T tags; A "-modules"; P arg; Sh ">"; Px out])
 
-The first line in this definition is to use the pattern environment to
-compute the actual name of the input file, to pass in argument to the
-`ocamldep` command, and of the result target name. The environment
-type `PLUGIN.env` is just `string -> string`, it takes a pattern and
-substitutes its pattern variables to return a closed result.
+The first line in this definition uses the pattern environment to
+compute the actual name of the input and output files. These are then
+passed in as arguments to the `ocamldep` command and shell redirect,
+respectively, on the third line.
+The environment type `PLUGIN.env` is just `string -> string`, it takes
+a pattern and substitutes its pattern variables to return a closed result.
 
-The second line in this definition computes the set of tags to include
-in this command invocation. When OCamlbuild is passed the command
-back, it will use its tag declarations to turn this set of tags in
-additional flags to insert in the command invocation. The call
-`tags_of_pathname arg` looks up in the `_tags` file for any tag
-associated to the `foo.ml` file, and the rule code also adds the two
-contextual tags `ocaml` and `ocamldep` (on which tag declarations
-may depend).
+The second line in this definition computes the tags to include in the
+command invocation. When OCamlbuild is passed back the command, it uses
+the tag declarations to determine which, if any, additional flags to
+insert into the command invocation. The call `tags_of_pathname arg`
+looks up in the `_tags` file any tags associated with file `foo.ml`.
+To these tags the rule code also adds the two contextual tags `ocaml`
+and `ocamldep` (on which flag declarations may depend).
 
 Finally, the command is built:
 
@@ -1377,23 +1378,22 @@ this information is used by OCamlbuild for logging purposes.
 
 ##### Remark: tags handling in rules
 
-Remark that it is entirely of the rule author's responsibility to
-include tags in the action's command. In particular, it is the code of
-the rule action that decides if the tags taken into account, if any,
-are the tags assigned to the rule dependencies, or productions, or
-both. (Unfortunately the built-in rule themselves are sometimes a bit
-inconsistent on this.)
+It is entirely the rule author's responsibility to include tags in the
+action's command. In particular, it is the code of the rule's action
+that decides which, if any, tags are taken into account and if they come
+from the rule dependencies, products or both. (Unfortunately, the built-in
+rules themselves are sometimes a bit inconsistent on this.)
 
 ### Dynamic dependencies <a id="rules-dynamic-deps"></a>
 
 In the action `ocamldep_ml_command` of the previous example, the
-`_build` parameter of type `PLUGIN.builder` was ignored. This is
-because this rule had no dynamic dependencies, no need to build extra
-targets determined during the execution of the rule itself -- the
-static dependency is built by ocamlbuild's resolution engine before
-the action itself is executed.
+`_build` parameter (of type `PLUGIN.builder`) was ignored, because the
+rule had no dynamic dependencies; no need to build extra targets
+determined during the execution of the rule itself. The static
+dependency is built by ocamlbuild's resolution engine before the
+action executed.
 
-The following example uses on dynamic depencies:
+The following example demonstrates dynamic depencies:
 
     let target_list env build =
         let itarget = env "%.itarget" in
@@ -1418,28 +1418,29 @@ The following example uses on dynamic depencies:
             build each of those targets in turn."
       target_list
 
-The `string_list_of_file` function reads a file and return the list of
+The `string_list_of_file` function reads a file and returns the list of
 its lines -- it is used in the various builtin rules for files
-containing file or module paths (`.mllib`, `.odocl`, here `.itarget`).
+containing other file or module paths
+(e.g. `.mllib`, `.odocl` or here `.itarget`).
 
-The function `build` expects a list of lists in argument, to be
+The function `build` takes as argument a list of lists, to be
 understood as a conjunction of disjunctions. For example, if passed
 the input `[["a/foo.byte"; "b/foo.byte"]; ["a/foo.native";
-"b/foo.native"]]`, it will try to build ((`a/foo.byte` OR
-`b/foo.byte`) AND (`a/foo.native` OR `b/foo.native`)). The disjunctive
-structure (this OR that) is useful because we are often not quite sure
-where a particular target may be (for example the module `Foo` may be
-in any of the subdirectories in the include path). The conjunctive
-structure (this AND that) is essential to parallelizing the build:
-ocamlbuild will try to build all these targets in parallel, whereas
-sequential invocation of the `build` function on each of the
-disjunctions would give sequential builds.
+"b/foo.native"]]`, it tries to build ((`a/foo.byte` OR `b/foo.byte`)
+AND (`a/foo.native` OR `b/foo.native`)). The disjunctive structure
+(this OR that) is useful because we are often not quite sure where a
+particular target may be (for example the module Foo may be in any of
+the subdirectories in the include path). The conjunctive structure
+(this AND that) is essential to parallelizing the build: ocamlbuild
+tries to build all these targets in parallel, whereas sequential
+invocation of the build function on each of the disjunctions would
+give sequential builds.
 
 The function `build` returns a list of outcomes (`(string, exn)
 Outcome.t` -- `Outcome.t` is just a disjoint-sum type), that is either
-a `string` (the one of the several possible targets that could
-be built) or an exception value. `Outcome.good` returns the good
-result if it exists, or raises the exception.
+a `string` (the possible target that could be built) or an exception.
+`Outcome.good` returns the good result if it exists, or raises the
+exception.
 
 ### Stamps <a id="rules-stamps"></a>
 
